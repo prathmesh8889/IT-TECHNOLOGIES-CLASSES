@@ -34,3 +34,7 @@ if (form) {
     }
   });
 }
+
+document.querySelectorAll(".reveal").forEach(el=>{new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add("visible")}),{threshold:.12}).observe(el)});
+const current=(location.pathname.split("/").pop()||"index.html").toLowerCase();
+document.querySelectorAll("#navMenu a").forEach(a=>{if((a.getAttribute("href")||"").toLowerCase()===current)a.classList.add("nav-active")});
