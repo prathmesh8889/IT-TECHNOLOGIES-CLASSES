@@ -10,31 +10,7 @@ if (year) year.textContent = new Date().getFullYear();
 
 const form = document.getElementById("enquiryForm");
 const formMessage = document.getElementById("formMessage");
-
-if (form) {
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    formMessage.textContent = "Submitting...";
-    formMessage.className = "form-message";
-    const data = Object.fromEntries(new FormData(form).entries());
-    try {
-      const res = await fetch("/api/enquiries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Could not submit enquiry.");
-      form.reset();
-      formMessage.textContent = "Enquiry submitted successfully. We will contact you soon.";
-      formMessage.className = "form-message ok";
-    } catch (err) {
-      formMessage.textContent = err.message;
-      formMessage.className = "form-message err";
-    }
-  });
-}
-
+if(form){form.addEventListener("submit",(e)=>{e.preventDefault();const d=Object.fromEntries(new FormData(form).entries());const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(d.name||"")}%0APhone: ${encodeURIComponent(d.phone||"")}%0AEmail: ${encodeURIComponent(d.email||"-")}%0ACourse: ${encodeURIComponent(d.course||"")}%0AMode: ${encodeURIComponent(d.mode||"")}%0AMessage: ${encodeURIComponent(d.message||"-")}`;window.open("https://wa.me/919999999999?text="+msg,"_blank");if(formMessage){formMessage.textContent="Opening WhatsApp…";formMessage.className="form-message ok";}});}
 document.querySelectorAll(".reveal").forEach(el=>{new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add("visible")}),{threshold:.12}).observe(el)});
 const current=(location.pathname.split("/").pop()||"index.html").toLowerCase();
 document.querySelectorAll("#navMenu a").forEach(a=>{if((a.getAttribute("href")||"").toLowerCase()===current)a.classList.add("nav-active")});
