@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin | IT Cyber Technology</title><link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-body">
+<main class="admin-shell">
+<div class="admin-top"><div><h1>Admission Enquiries</h1><p>Manage student leads.</p></div><a href="index.html">Back to website</a></div>
+<section id="loginPanel" class="login-card">
+<h2>Admin Access</h2>
+<form id="adminLogin" class="enquiry-form simple-form">
+<label>Username<input id="adminUser" required></label>
+<label>Access key<input id="adminPass" required type="password"></label>
+<button class="btn primary full" type="submit">Open Admin Panel</button><p id="loginMsg" class="form-message"></p>
+</form>
+</section>
+<section id="leadsPanel" hidden>
+<div class="admin-actions"><strong id="leadCount">0 enquiries</strong><button id="logoutBtn" class="btn light-btn">Logout</button></div>
+<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Date</th><th>Student</th><th>Contact</th><th>Course</th><th>Mode</th><th>Message</th><th>Status</th><th>Action</th></tr></thead><tbody id="leadRows"><tr><td colspan="8" class="empty">No enquiries yet.</td></tr></tbody></table></div>
+</section>
+</main><script src="admin.js"></script>
+</body></html>
