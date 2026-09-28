@@ -5,7 +5,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const DATA_FILE = path.join(__dirname, "data", "enquiries.json");
 
 app.use(express.json());
@@ -29,6 +29,7 @@ function writeEnquiries(items) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(items, null, 2));
 }
 function requireAdmin(req, res, next) {
+  if (!ADMIN_PASSWORD) return res.status(503).json({ message: "Admin login disabled until ADMIN_PASSWORD is configured on Render." });
   const auth = req.headers.authorization || "";
   if (!auth.startsWith("Basic ")) return res.status(401).json({ message: "Unauthorized" });
   const decoded = Buffer.from(auth.slice(6), "base64").toString("utf8");
