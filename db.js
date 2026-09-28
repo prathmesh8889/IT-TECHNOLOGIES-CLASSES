@@ -1,7 +1,7 @@
 const {Pool}=require("pg");
-if(!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
-const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.NODE_ENV==="production"?{rejectUnauthorized:false}:false});
+const pool=process.env.DATABASE_URL?new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.NODE_ENV==="production"?{rejectUnauthorized:false}:false}):{query:async()=>{throw new Error("DATABASE_URL is not configured")}};
 async function initDB(){
+ if(!process.env.DATABASE_URL){console.warn("DATABASE_URL not configured; PostgreSQL management features are disabled.");return false;}
  await pool.query(`CREATE TABLE IF NOT EXISTS courses(id SERIAL PRIMARY KEY,name TEXT UNIQUE NOT NULL,duration TEXT NOT NULL,fee INTEGER NOT NULL,description TEXT DEFAULT '',active BOOLEAN DEFAULT TRUE,created_at TIMESTAMPTZ DEFAULT NOW());
  CREATE TABLE IF NOT EXISTS batches(id SERIAL PRIMARY KEY,course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,name TEXT NOT NULL,mode TEXT NOT NULL,start_time TEXT,start_date DATE,capacity INTEGER DEFAULT 30,active BOOLEAN DEFAULT TRUE,created_at TIMESTAMPTZ DEFAULT NOW());
  CREATE TABLE IF NOT EXISTS enquiries(id BIGSERIAL PRIMARY KEY,name TEXT NOT NULL,phone TEXT NOT NULL,email TEXT DEFAULT '',course TEXT NOT NULL,mode TEXT NOT NULL,message TEXT DEFAULT '',status TEXT DEFAULT 'New',created_at TIMESTAMPTZ DEFAULT NOW());
@@ -10,5 +10,6 @@ async function initDB(){
  CREATE TABLE IF NOT EXISTS certificates(id TEXT PRIMARY KEY,student_id INTEGER REFERENCES students(id) ON DELETE SET NULL,name TEXT NOT NULL,course TEXT NOT NULL,completion_date DATE NOT NULL,issued_at TIMESTAMPTZ DEFAULT NOW());`);
  const defaults=[["Full Stack Development","4 Months",18000,"Frontend, backend, database, APIs and deployment"],["Java Development","3 Months",14000,"Core Java, Spring Boot and databases"],["Python Programming","2 Months",10000,"Python fundamentals and projects"],["Cyber Security Basics","2 Months",12000,"Networking and security fundamentals"],["Web Design","6 Weeks",7500,"HTML, CSS and responsive UI"],["SQL & Database","1 Month",6000,"SQL, joins and database design"]];
  for(const c of defaults) await pool.query("INSERT INTO courses(name,duration,fee,description) VALUES($1,$2,$3,$4) ON CONFLICT(name) DO NOTHING",c);
+ return true;
 }
 module.exports={pool,initDB};
