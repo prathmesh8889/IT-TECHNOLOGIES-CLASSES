@@ -1,101 +1,21 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-const ADMIN_USER = process.env.ADMIN_USER || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const DATA_FILE = path.join(__dirname, "data", "enquiries.json");
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-
-function ensureDataFile() {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, "[]");
-}
-function readEnquiries() {
-  ensureDataFile();
-  try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, "utf8") || "[]");
-  } catch {
-    return [];
-  }
-}
-function writeEnquiries(items) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(items, null, 2));
-}
-function requireAdmin(req, res, next) {
-  if (!ADMIN_PASSWORD) return res.status(503).json({ message: "Admin login disabled until ADMIN_PASSWORD is configured on Render." });
-  const auth = req.headers.authorization || "";
-  if (!auth.startsWith("Basic ")) return res.status(401).json({ message: "Unauthorized" });
-  const decoded = Buffer.from(auth.slice(6), "base64").toString("utf8");
-  const idx = decoded.indexOf(":");
-  const user = decoded.slice(0, idx);
-  const pass = decoded.slice(idx + 1);
-  if (user !== ADMIN_USER || pass !== ADMIN_PASSWORD) {
-    return res.status(401).json({ message: "Invalid admin credentials" });
-  }
-  next();
-}
-
-app.post("/api/enquiries", (req, res) => {
-  const { name, phone, email, course, mode, message } = req.body;
-  if (!name || !phone || !course || !mode) {
-    return res.status(400).json({ message: "Name, phone, course and mode are required." });
-  }
-
-  const cleanPhone = String(phone).replace(/[^\d+]/g, "");
-  if (cleanPhone.length < 10) {
-    return res.status(400).json({ message: "Please enter a valid phone number." });
-  }
-
-  const items = readEnquiries();
-  const enquiry = {
-    id: Date.now().toString(),
-    name: String(name).trim(),
-    phone: cleanPhone,
-    email: String(email || "").trim(),
-    course: String(course).trim(),
-    mode: String(mode).trim(),
-    message: String(message || "").trim(),
-    status: "New",
-    createdAt: new Date().toISOString()
-  };
-  items.unshift(enquiry);
-  writeEnquiries(items);
-  res.status(201).json({ message: "Enquiry submitted successfully.", enquiry });
-});
-
-app.get("/api/admin/enquiries", requireAdmin, (req, res) => {
-  res.json(readEnquiries());
-});
-
-app.patch("/api/admin/enquiries/:id", requireAdmin, (req, res) => {
-  const items = readEnquiries();
-  const item = items.find(x => x.id === req.params.id);
-  if (!item) return res.status(404).json({ message: "Enquiry not found." });
-  item.status = req.body.status || item.status;
-  writeEnquiries(items);
-  res.json({ message: "Status updated.", enquiry: item });
-});
-
-app.delete("/api/admin/enquiries/:id", requireAdmin, (req, res) => {
-  const items = readEnquiries();
-  const filtered = items.filter(x => x.id !== req.params.id);
-  if (filtered.length === items.length) {
-    return res.status(404).json({ message: "Enquiry not found." });
-  }
-  writeEnquiries(filtered);
-  res.json({ message: "Enquiry deleted." });
-});
-
-app.get("/health", (req, res) => res.json({ status: "ok" }));
-
-app.listen(PORT, () => {
-  ensureDataFile();
-  console.log(`IT Cyber Technology website running on http://localhost:${PORT}`);
-});
+const express=require("express"),fs=require("fs"),path=require("path"),crypto=require("crypto");
+const app=express(),PORT=process.env.PORT||3000,ADMIN_USER=process.env.ADMIN_USER||"admin",ADMIN_PASSWORD=process.env.ADMIN_PASSWORD;
+const ENQ=path.join(__dirname,"data","enquiries.json"),PAY=path.join(__dirname,"data","payments.json"),CERT=path.join(__dirname,"data","certificates.json");
+app.use(express.json());app.use(express.urlencoded({extended:true}));app.use(express.static(path.join(__dirname,"public")));
+function ensure(file){if(!fs.existsSync(path.dirname(file)))fs.mkdirSync(path.dirname(file),{recursive:true});if(!fs.existsSync(file))fs.writeFileSync(file,"[]")}
+function read(file){ensure(file);try{return JSON.parse(fs.readFileSync(file,"utf8")||"[]")}catch{return[]}} function write(file,x){fs.writeFileSync(file,JSON.stringify(x,null,2))}
+function admin(req,res,next){if(!ADMIN_PASSWORD)return res.status(503).json({message:"Admin password is not configured."});const a=req.headers.authorization||"";if(!a.startsWith("Basic "))return res.status(401).json({message:"Unauthorized"});const d=Buffer.from(a.slice(6),"base64").toString("utf8"),i=d.indexOf(":");if(d.slice(0,i)!==ADMIN_USER||d.slice(i+1)!==ADMIN_PASSWORD)return res.status(401).json({message:"Invalid admin credentials"});next()}
+const fees={"Full Stack Development":18000,"Java Development":14000,"Python Programming":10000,"Cyber Security Basics":12000,"Web Design":7500,"SQL & Database":6000};
+app.post("/api/enquiries",(req,res)=>{const{name,phone,email,course,mode,message}=req.body;if(!name||!phone||!course||!mode)return res.status(400).json({message:"Required fields missing."});const p=String(phone).replace(/[^\d+]/g,"");if(p.length<10)return res.status(400).json({message:"Invalid phone."});const x=read(ENQ),e={id:Date.now().toString(),name:String(name).trim(),phone:p,email:String(email||"").trim(),course:String(course),mode:String(mode),message:String(message||""),status:"New",createdAt:new Date().toISOString()};x.unshift(e);write(ENQ,x);res.status(201).json({message:"Enquiry submitted successfully.",enquiry:e})});
+app.get("/api/admin/enquiries",admin,(req,res)=>res.json(read(ENQ)));app.patch("/api/admin/enquiries/:id",admin,(req,res)=>{const x=read(ENQ),e=x.find(v=>v.id===req.params.id);if(!e)return res.status(404).json({message:"Not found"});e.status=req.body.status||e.status;write(ENQ,x);res.json(e)});app.delete("/api/admin/enquiries/:id",admin,(req,res)=>{const x=read(ENQ),y=x.filter(v=>v.id!==req.params.id);write(ENQ,y);res.json({message:"Deleted"})});
+app.get("/api/course-fees",(req,res)=>res.json(fees));
+app.post("/api/payments/create",(req,res)=>{const{name,email,phone,course}=req.body,amount=fees[course];if(!name||!phone||!course||!amount)return res.status(400).json({message:"Valid student and course required."});const x=read(PAY),payment={id:"ICTPAY"+Date.now(),name:String(name).trim(),email:String(email||"").trim(),phone:String(phone).trim(),course,amount,status:"Pending",method:"Online",transactionId:"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};x.unshift(payment);write(PAY,x);res.status(201).json({payment,message:"Payment request created. Complete payment using the institute payment gateway/UPI and submit the transaction ID."})});
+app.post("/api/payments/:id/submit-reference",(req,res)=>{const x=read(PAY),p=x.find(v=>v.id===req.params.id);if(!p)return res.status(404).json({message:"Payment not found"});if(!req.body.transactionId)return res.status(400).json({message:"Transaction ID required"});p.transactionId=String(req.body.transactionId).trim();p.status="Verification Pending";p.updatedAt=new Date().toISOString();write(PAY,x);res.json({payment:p,message:"Transaction submitted for verification."})});
+app.get("/api/payments/status/:id",(req,res)=>{const p=read(PAY).find(v=>v.id===req.params.id);if(!p)return res.status(404).json({message:"Payment not found"});res.json(p)});
+app.get("/api/admin/payments",admin,(req,res)=>res.json(read(PAY)));
+app.patch("/api/admin/payments/:id",admin,(req,res)=>{const x=read(PAY),p=x.find(v=>v.id===req.params.id);if(!p)return res.status(404).json({message:"Payment not found"});if(["Paid","Rejected","Verification Pending","Pending"].includes(req.body.status))p.status=req.body.status;p.updatedAt=new Date().toISOString();write(PAY,x);res.json(p)});
+app.get("/api/receipts/:id",(req,res)=>{const p=read(PAY).find(v=>v.id===req.params.id);if(!p||p.status!=="Paid")return res.status(404).send("Paid receipt not available.");res.setHeader("Content-Type","text/html");res.send(`<!doctype html><html><head><meta charset="utf-8"><title>Receipt ${p.id}</title><style>body{font-family:Arial;padding:40px;color:#111}main{max-width:700px;margin:auto;border:2px solid #111;padding:35px}h1{margin:0}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:12px 0}.print{margin-top:25px;padding:10px 18px}@media print{.print{display:none}}</style></head><body><main><h1>IT Cyber Technology</h1><p>Official Course Fee Receipt</p><div class="row"><b>Receipt / Payment ID</b><span>${p.id}</span></div><div class="row"><b>Student</b><span>${p.name}</span></div><div class="row"><b>Course</b><span>${p.course}</span></div><div class="row"><b>Amount</b><span>₹${p.amount}</span></div><div class="row"><b>Status</b><span>PAID</span></div><div class="row"><b>Transaction ID</b><span>${p.transactionId||"-"}</span></div><div class="row"><b>Date</b><span>${new Date(p.updatedAt).toLocaleDateString("en-IN")}</span></div><button class="print" onclick="print()">Download / Print PDF</button></main></body></html>`)});
+app.post("/api/admin/certificates",admin,(req,res)=>{const{name,course,completionDate}=req.body;if(!name||!course)return res.status(400).json({message:"Name and course required"});const x=read(CERT),c={id:"ICTCERT-"+crypto.randomBytes(4).toString("hex").toUpperCase(),name:String(name).trim(),course:String(course).trim(),completionDate:completionDate||new Date().toISOString().slice(0,10),issuedAt:new Date().toISOString()};x.unshift(c);write(CERT,x);res.status(201).json(c)});
+app.get("/api/certificates/:id",(req,res)=>{const c=read(CERT).find(v=>v.id.toLowerCase()===req.params.id.toLowerCase());if(!c)return res.status(404).send("Certificate not found");res.setHeader("Content-Type","text/html");res.send(`<!doctype html><html><head><meta charset="utf-8"><title>${c.id}</title><style>body{font-family:Georgia;background:#eef2ff;padding:30px}main{max-width:950px;margin:auto;background:#fff;border:12px double #312e81;padding:70px 45px;text-align:center}h1{font-size:48px;color:#312e81}h2{font-size:36px}.id{margin-top:35px}.print{padding:10px 18px}@media print{body{background:#fff}.print{display:none}}</style></head><body><main><p>IT CYBER TECHNOLOGY</p><h1>Certificate of Completion</h1><p>This certificate is proudly presented to</p><h2>${c.name}</h2><p>for successfully completing the course</p><h2>${c.course}</h2><p>Completion Date: ${c.completionDate}</p><p class="id">Certificate ID: <b>${c.id}</b></p><button class="print" onclick="print()">Download / Print PDF</button></main></body></html>`)});
+app.get("/api/certificates/verify/:id",(req,res)=>{const c=read(CERT).find(v=>v.id.toLowerCase()===req.params.id.toLowerCase());res.json(c?{valid:true,certificate:c}:{valid:false})});
+app.get("/health",(req,res)=>res.json({status:"ok"}));app.listen(PORT,()=>{[ENQ,PAY,CERT].forEach(ensure);console.log("IT Cyber Technology running on "+PORT)});
