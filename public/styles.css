@@ -108,3 +108,13 @@ img,svg,video,canvas{max-width:100%;height:auto}
 @media(hover:none),(pointer:coarse){
  .course-card:hover,.schedule-card:hover,.feature-card:hover,.btn:hover{transform:none}
 }
+
+/* Mobile side breathing room */
+@media(max-width:600px){
+  .container{width:auto;max-width:none;margin-left:18px;margin-right:18px}
+  .hero .container,.page-hero .container,.section .container,footer .container{margin-left:18px;margin-right:18px}
+  .nav-wrap{margin-left:18px;margin-right:18px}
+}
+@media(max-width:380px){
+  .container,.hero .container,.page-hero .container,.section .container,footer .container,.nav-wrap{margin-left:16px;margin-right:16px}
+}
