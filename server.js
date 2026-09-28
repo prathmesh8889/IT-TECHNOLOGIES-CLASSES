@@ -37,5 +37,5 @@ app.patch("/api/admin/students/:id",admin,async(req,res)=>{const{courseId,batchI
 app.delete("/api/admin/students/:id",admin,async(req,res)=>{await pool.query("DELETE FROM students WHERE id=$1",[req.params.id]);res.json({message:"Student deleted"})});
 app.get("/api/admin/dashboard",admin,async(req,res)=>{const r=await pool.query("SELECT (SELECT count(*) FROM courses WHERE active=true)::int courses,(SELECT count(*) FROM batches WHERE active=true)::int batches,(SELECT count(*) FROM students)::int students,(SELECT count(*) FROM enquiries)::int enquiries");res.json(r.rows[0])});
 app.get("/health",async(req,res)=>{try{await pool.query("SELECT 1");res.json({status:"ok",database:"postgresql"})}catch(e){res.status(500).json({status:"error",database:"disconnected"})}});
-initDB().then(()=>app.listen(PORT,()=>console.log("IT Cyber Technology + PostgreSQL running on "+PORT))).catch(e=>{console.error("Database startup failed",e);process.exit(1)});
+initDB().catch(e=>console.error("Database initialization warning:",e.message)).finally(()=>app.listen(PORT,()=>console.log("IT Cyber Technology running on "+PORT)));
 
