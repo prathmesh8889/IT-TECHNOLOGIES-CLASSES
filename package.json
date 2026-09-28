@@ -1,15 +1,13 @@
 {
   "name": "it-cyber-technology-classes",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Responsive classes website with enquiry API and admin leads panel",
+  "description": "Static public ICT website with secure admin authentication",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "pg": "^8.13.1"
+    "express": "^4.21.2"
   }
 }
