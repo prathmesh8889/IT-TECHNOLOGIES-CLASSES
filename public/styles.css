@@ -317,3 +317,126 @@ img,svg,video,canvas{max-width:100%;height:auto}
 @media(max-width:820px){.catalog-layout{grid-template-columns:1fr}.course-sidebar{position:relative;top:auto}.course-sidebar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sidebar-title,.sidebar-cta{grid-column:1/-1}.course-pro-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.course-sidebar{grid-template-columns:1fr}.sidebar-title,.sidebar-cta{grid-column:auto}.course-pro-grid{grid-template-columns:1fr}.course-cover{height:150px}.course-pro-card:hover{transform:none}}
 @media(prefers-reduced-motion:reduce){.cover-art b{animation:none}}
+
+/* v10 — official logo + blue/teal premium institute theme */
+:root{
+  --brand:#0f63d7;
+  --brand2:#14b8b4;
+  --brand3:#0b2f6b;
+  --ink:#071b36;
+  --soft-blue:#f3f8ff;
+  --soft-teal:#f0fdfa;
+}
+
+/* dark utility strip inspired by premium training portals */
+.top-strip{position:relative;z-index:55;background:linear-gradient(90deg,#031226,#08264a 52%,#063b4e);color:#dbeafe;border-bottom:1px solid rgba(45,212,191,.18)}
+.top-strip-inner{min-height:34px;display:flex;align-items:center;justify-content:flex-end;gap:0;font-size:10px;font-weight:700;letter-spacing:.03em}
+.top-strip-inner>*{padding:0 12px;border-right:1px solid rgba(255,255,255,.13)}
+.top-strip-inner>*:last-child{border-right:0}
+.top-strip-inner a{color:#67e8f9}
+
+/* official logo in navbar */
+.site-header{top:0;background:linear-gradient(90deg,rgba(255,255,255,.96),rgba(246,251,255,.95),rgba(241,253,252,.95));box-shadow:0 8px 28px rgba(15,47,107,.06)}
+.brand-with-logo{gap:11px;min-width:0}
+.brand-logo-crop{position:relative;width:52px;height:52px;display:block;overflow:hidden;border-radius:14px;background:#fff;border:1px solid rgba(15,99,215,.12);box-shadow:0 7px 20px rgba(15,99,215,.14);flex:0 0 52px}
+.brand-logo-crop img{position:absolute;width:82px;height:82px;max-width:none;left:-15px;top:-7px;object-fit:contain}
+.brand-copy{min-width:0}
+.brand-copy strong{display:block;color:#082b64;font-size:15px}
+.brand-copy small{display:block;color:#3f647d;font-size:10px;margin-top:2px;white-space:nowrap}
+.site-header nav a{position:relative;color:#17324e}
+.site-header nav a:after{content:"";position:absolute;left:50%;right:50%;bottom:-8px;height:2px;border-radius:4px;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.25s}
+.site-header nav a:hover:after,.site-header nav a.nav-active:after{left:0;right:0}
+.site-header nav a:hover,.nav-active{color:var(--brand)!important}
+
+/* move away from flat white */
+body{background:
+  radial-gradient(circle at 7% 28%,rgba(15,99,215,.055),transparent 23%),
+  radial-gradient(circle at 94% 62%,rgba(20,184,180,.055),transparent 25%),
+  #f8fbff}
+main>.section:not(.media-showcase):not(.alt){background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(243,248,255,.92) 58%,rgba(240,253,250,.75))}
+.section.alt{background:
+  radial-gradient(circle at 90% 20%,rgba(20,184,180,.08),transparent 26%),
+  linear-gradient(135deg,#eef5ff,#f8fbff 46%,#ecfdfb)}
+.section-head h2,.form-grid h2,.contact-card h2{color:#092d62}
+.section-head p{color:#5c7189}
+.eyebrow{color:#0f78cf}
+
+/* brand-consistent controls */
+.btn.primary{background:linear-gradient(135deg,#0d5fd2,#128ed0 52%,#12b8ae);box-shadow:0 12px 28px rgba(15,99,215,.25)}
+.btn.primary:hover{box-shadow:0 16px 38px rgba(20,184,180,.26)}
+.brand-mark{background:linear-gradient(135deg,#0f63d7,#14b8b4)}
+.course-card,.schedule-card,.feature-card,.info-card,.process-step,.enquiry-form,.stat-box{
+  background:linear-gradient(145deg,#fff,#f8fbff);
+  border-color:rgba(38,93,145,.13);
+  box-shadow:0 12px 34px rgba(30,64,104,.06)
+}
+.course-card:hover,.schedule-card:hover,.feature-card:hover,.info-card:hover{
+  border-color:rgba(20,184,180,.28);
+  box-shadow:0 20px 50px rgba(15,99,215,.11)
+}
+.meta{color:#0f63d7}
+
+/* homepage still keeps poster/video campaign area bold */
+.media-showcase{
+  background:
+    radial-gradient(circle at 82% 20%,rgba(255,36,53,.11),transparent 23%),
+    radial-gradient(circle at 14% 70%,rgba(15,99,215,.07),transparent 28%),
+    linear-gradient(180deg,#fff,#f8f4f5)
+}
+.media-showcase .section-head h2{color:#101827}
+
+/* convert the surrounding site back to logo colors */
+.impact-strip{background:linear-gradient(100deg,#06172d,#082e60 50%,#075b68);border-color:rgba(45,212,191,.16)}
+.impact-grid{background:rgba(255,255,255,.09)}
+.impact-grid>div{background:rgba(4,18,40,.82)}
+.impact-grid strong{background:linear-gradient(90deg,#60a5fa,#2dd4bf);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* catalog adapted to logo identity while preserving the portal-like structure */
+.course-catalog{background:
+  radial-gradient(circle at 88% 6%,rgba(20,184,180,.075),transparent 20%),
+  linear-gradient(180deg,#f4f8ff,#ffffff)!important}
+.course-sidebar{background:linear-gradient(180deg,#071b36,#082d58 65%,#06475a)}
+.course-sidebar:before{background:linear-gradient(90deg,#0f63d7,#14b8b4)}
+.category-link:hover,.category-link.active{background:linear-gradient(135deg,#0f63d7,#0b8bc3 55%,#14b8b4)}
+.sidebar-cta{background:linear-gradient(145deg,rgba(15,99,215,.18),rgba(20,184,180,.08));border-color:rgba(45,212,191,.2)}
+.sidebar-cta a{color:#67e8f9}
+.course-pro-card:hover{border-color:rgba(20,184,180,.30);box-shadow:0 24px 60px rgba(10,67,124,.15)}
+.course-footer a{background:linear-gradient(135deg,#0f63d7,#14b8b4);box-shadow:0 8px 18px rgba(15,99,215,.22)}
+.course-footer a:hover{box-shadow:0 12px 26px rgba(20,184,180,.28)}
+.courses-page{background:
+  radial-gradient(circle at 80% 42%,rgba(20,184,180,.22),transparent 28%),
+  radial-gradient(circle at 56% 0%,rgba(15,99,215,.20),transparent 29%),
+  linear-gradient(135deg,#041329,#082a53)!important}
+.courses-page .eyebrow{color:#5eead4!important}
+
+/* premium footer instead of plain black */
+footer{background:
+  radial-gradient(circle at 85% 0%,rgba(20,184,180,.16),transparent 25%),
+  linear-gradient(100deg,#031123,#072653 58%,#064452);
+  color:#b8cce2;border-top:1px solid rgba(45,212,191,.13)}
+.footer-wrap a{color:#67e8f9}
+
+/* admission/contact blocks match logo */
+.contact-card{background:linear-gradient(135deg,#0a3f87,#08759b 58%,#0f9d98)}
+.form-embed{background:linear-gradient(135deg,#082754,#0b4a78 50%,#0c7474)}
+.registration-card .eyebrow{color:#67e8f9}
+
+/* small decorative color line at section tops */
+.section{position:relative}
+.section:not(.media-showcase):not(.alt):before{content:"";position:absolute;top:0;left:50%;width:min(1080px,78%);height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(15,99,215,.14),rgba(20,184,180,.18),transparent)}
+
+@media(max-width:900px){
+  .top-strip-inner{justify-content:center;overflow:auto;white-space:nowrap}
+  .top-strip-inner span:nth-child(2),.top-strip-inner span:nth-child(3){display:none}
+  .brand-copy strong{font-size:14px}
+  .brand-copy small{font-size:9px}
+}
+@media(max-width:600px){
+  .top-strip-inner{justify-content:space-between}
+  .top-strip-inner>*{padding:0 7px}
+  .brand-logo-crop{width:44px;height:44px;flex-basis:44px;border-radius:12px}
+  .brand-logo-crop img{width:70px;height:70px;left:-13px;top:-6px}
+  .brand-copy strong{font-size:12px}
+  .brand-copy small{max-width:180px;overflow:hidden;text-overflow:ellipsis}
+  .nav-wrap{height:68px}
+}
