@@ -1,9 +1,0 @@
-{
-  "name": "it-cyber-technology-classes",
-  "version": "3.0.0",
-  "private": true,
-  "description": "IT Cyber Technology Classes website with secure admin content management",
-  "main": "server.js",
-  "scripts": {"start":"node server.js"},
-  "dependencies":{"express":"^4.21.2","express-session":"^1.18.1"}
-}
