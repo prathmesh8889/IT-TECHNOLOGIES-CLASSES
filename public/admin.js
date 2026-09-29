@@ -4,6 +4,12 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const loginView=$("#loginView"), app=$("#adminApp"), loginForm=$("#loginForm"), loginMsg=$("#loginMsg");
 let currentTab="dashboard";
 
+function setAuthView(ok){
+  loginView.hidden=ok;
+  app.hidden=!ok;
+  loginView.style.display=ok?"none":"grid";
+  app.style.display=ok?"grid":"none";
+}
 function msg(el,text,ok=false){if(!el)return;el.textContent=text;el.className="form-message "+(ok?"ok":"err")}
 async function isAuthorized(){
   const {data:{user}}=await db.auth.getUser(); if(!user)return false;
@@ -22,7 +28,7 @@ async function isAuthorized(){
 }
 async function boot(){
   const ok=await isAuthorized();
-  loginView.hidden=ok;app.hidden=!ok;
+  setAuthView(ok);
   if(ok){bindNav();await loadAll();}
 }
 loginForm?.addEventListener("submit",async e=>{
@@ -31,7 +37,7 @@ loginForm?.addEventListener("submit",async e=>{
   const {error}=await db.auth.signInWithPassword({email:f.get("email"),password:f.get("password")});
   if(error){msg(loginMsg,error.message);return}
   if(!(await isAuthorized())){await db.auth.signOut();msg(loginMsg,"This account is not authorized as an admin.");return}
-  msg(loginMsg,"Signed in.",true);loginView.hidden=true;app.hidden=false;bindNav();await loadAll();
+  msg(loginMsg,"Signed in.",true);setAuthView(true);bindNav();await loadAll();
 });
 $("#logoutBtn")?.addEventListener("click",async()=>{await db.auth.signOut();location.reload()});
 
