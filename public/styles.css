@@ -440,3 +440,11 @@ footer{background:
   .brand-copy small{max-width:180px;overflow:hidden;text-overflow:ellipsis}
   .nav-wrap{height:68px}
 }
+
+/* Supabase live content */
+.live-announcement{position:relative;z-index:35;background:linear-gradient(90deg,#071b36,#0f63d7 50%,#0b8f91);color:#fff;border-bottom:1px solid rgba(255,255,255,.14)}
+.announcement-inner{min-height:42px;display:flex;align-items:center;justify-content:center;gap:16px;font-size:12px}
+.announcement-inner strong{font-size:12px;letter-spacing:.03em}
+.announcement-inner span{color:#dbeafe}
+.announcement-inner a{padding:7px 11px;border-radius:999px;background:#fff;color:#0a4f9e;font-weight:900;white-space:nowrap}
+@media(max-width:600px){.announcement-inner{min-height:48px;justify-content:flex-start;overflow:auto;white-space:nowrap}.announcement-inner span{display:none}}
