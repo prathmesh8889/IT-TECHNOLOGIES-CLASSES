@@ -118,8 +118,17 @@ async function uploadMedia(key){
 }
 async function loadAdmissions(){
   const {data=[]}=await db.from("admissions").select("*").order("created_at",{ascending:false});
-  $("#admissionsTable").innerHTML=data.length?table(["Name","Phone","Course","Status","Date","Actions"],data.map(x=>'<tr><td><strong>'+esc(x.name)+'</strong><br><small>'+esc(x.email)+'</small></td><td>'+esc(x.phone)+'</td><td>'+esc(x.course)+'</td><td><select class="status-select" data-status="'+x.id+'">'+["new","contacted","qualified","enrolled","closed"].map(s=>'<option '+(s===x.status?"selected":"")+'>'+s+'</option>').join("")+'</select></td><td>'+new Date(x.created_at).toLocaleString()+'</td><td><a href="https://wa.me/'+String(x.phone).replace(/\D/g,"")+'" target="_blank">WhatsApp</a></td></tr>')):'<div class="admin-empty">No admissions yet</div>';
-  $$("[data-status]").forEach(s=>s.onchange=async()=>{await db.from("admissions").update({status:s.value}).eq("id",s.dataset.status)});
+  $("#admissionsTable").innerHTML=data.length?table(["Name","Phone","Course","Source","Status","Date","Actions"],data.map(x=>'<tr><td><strong>'+esc(x.name)+'</strong><br><small>'+esc(x.email)+'</small></td><td>'+esc(x.phone)+'</td><td>'+esc(x.course)+'</td><td><span class="source-badge '+(x.source==="google-form"?"google":"website")+'">'+esc(x.source==="google-form"?"Google Form":"Website")+'</span></td><td><select class="status-select" data-status="'+x.id+'">'+["new","contacted","qualified","enrolled","closed"].map(s=>'<option '+(s===x.status?"selected":"")+'>'+s+'</option>').join("")+'</select></td><td>'+new Date(x.submitted_at||x.created_at).toLocaleString()+'</td><td><div class="admin-actions"><button class="edit-btn" data-view-admission="'+x.id+'">Details</button><a href="https://wa.me/'+String(x.phone).replace(/\D/g,"")+'" target="_blank">WhatsApp</a></div></td></tr>')):'<div class="admin-empty">No admissions yet</div>';
+  $("[data-status]").forEach(s=>s.onchange=async()=>{await db.from("admissions").update({status:s.value}).eq("id",s.dataset.status)});
+  $("[data-view-admission]").forEach(b=>b.onclick=()=>viewAdmission(data.find(x=>x.id===b.dataset.viewAdmission)));
+}
+function viewAdmission(row){
+  if(!row)return;
+  $("#modalTitle").textContent="Admission Details";
+  const raw=row.raw_response&&Object.keys(row.raw_response).length?'<div class="raw-response"><h4>Original Google Form Response</h4>'+Object.entries(row.raw_response).map(([k,v])=>'<div><strong>'+esc(k)+'</strong><span>'+esc(Array.isArray(v)?v.join(", "):v)+'</span></div>').join("")+'</div>':"";
+  $("#editorForm").innerHTML='<div class="admission-detail-grid"><div><small>Name</small><strong>'+esc(row.name)+'</strong></div><div><small>Phone</small><strong>'+esc(row.phone)+'</strong></div><div><small>Email</small><strong>'+esc(row.email||"-")+'</strong></div><div><small>Course</small><strong>'+esc(row.course||"-")+'</strong></div><div><small>Mode</small><strong>'+esc(row.mode||"-")+'</strong></div><div><small>Source</small><strong>'+esc(row.source||"website")+'</strong></div></div><div class="admin-note"><strong>Message</strong><p>'+esc(row.message||"-")+'</p></div>'+raw;
+  $("#editorForm").onsubmit=e=>e.preventDefault();
+  $("#editorModal").hidden=false;
 }
 function openEditor(type,row={}){
   const f=$("#editorForm");$("#modalTitle").textContent=(row?.id?"Edit ":"Add ")+type;
