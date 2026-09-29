@@ -10,10 +10,12 @@ async function isAuthorized(){
   let {data}=await db.from("admin_users").select("role").eq("user_id",user.id).maybeSingle();
   if(data)return true;
   if((user.email||"").toLowerCase()==="connect@itcyber.in"){
-    const {error}=await db.functions.invoke("bootstrap-admin",{body:{}});
-    if(!error){
+    const result=await db.functions.invoke("bootstrap-admin",{body:{}});
+    if(!result.error){
       const retry=await db.from("admin_users").select("role").eq("user_id",user.id).maybeSingle();
       data=retry.data;
+    }else{
+      console.error("Admin bootstrap failed",result.error);
     }
   }
   return !!data;
