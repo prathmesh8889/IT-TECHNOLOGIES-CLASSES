@@ -7,7 +7,15 @@ let currentTab="dashboard";
 function msg(el,text,ok=false){if(!el)return;el.textContent=text;el.className="form-message "+(ok?"ok":"err")}
 async function isAuthorized(){
   const {data:{user}}=await db.auth.getUser(); if(!user)return false;
-  const {data}=await db.from("admin_users").select("role").eq("user_id",user.id).maybeSingle();
+  let {data}=await db.from("admin_users").select("role").eq("user_id",user.id).maybeSingle();
+  if(data)return true;
+  if((user.email||"").toLowerCase()==="connect@itcyber.in"){
+    const {error}=await db.functions.invoke("bootstrap-admin",{body:{}});
+    if(!error){
+      const retry=await db.from("admin_users").select("role").eq("user_id",user.id).maybeSingle();
+      data=retry.data;
+    }
+  }
   return !!data;
 }
 async function boot(){
