@@ -54,7 +54,7 @@ function safeText(v){return String(v??"")}
   }
 
   if(window.matchMedia("(pointer:fine)").matches){
-    document.querySelectorAll("[data-tilt]").forEach(el=>{
+    document.querySelectorAll("[data-tilt], .feature-card, .course-card, .schedule-card, .info-card, .process-step").forEach(el=>{
       let frame=0;
       const reset=()=>{el.style.transform="";};
       el.addEventListener("pointermove",e=>{
