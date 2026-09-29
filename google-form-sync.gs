@@ -83,3 +83,37 @@ function sendResponseToITCyber(response) {
 
   return body;
 }
+
+
+/**
+ * Manual connectivity test. Run this once from Apps Script.
+ * A successful run creates a lead named "Google Sync Test" in Admin → Admissions.
+ */
+function testITCyberWebhook() {
+  const payload = {
+    responseId: "manual-test-" + Date.now(),
+    timestamp: new Date().toISOString(),
+    namedValues: {
+      "Full Name": "Google Sync Test",
+      "Phone": "9999999999",
+      "Email": "connect@itcyber.in",
+      "Course": "Integration Test",
+      "Mode": "Online",
+      "Message": "Google Form → Supabase connectivity test"
+    }
+  };
+
+  const result = UrlFetchApp.fetch(ITCYBER_SUPABASE_WEBHOOK, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  Logger.log("HTTP " + result.getResponseCode());
+  Logger.log(result.getContentText());
+
+  if (result.getResponseCode() < 200 || result.getResponseCode() >= 300) {
+    throw new Error("Webhook test failed: " + result.getContentText());
+  }
+}
