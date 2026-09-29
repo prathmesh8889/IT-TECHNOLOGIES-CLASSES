@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin Dashboard | IT Cyber Technology</title>
+<style>
+:root{font-family:Inter,system-ui,Segoe UI,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#07111f;color:#eef2ff}
+.shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
+aside{background:#0b1626;border-right:1px solid rgba(255,255,255,.08);padding:24px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;margin-bottom:28px}
+.logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#4f46e5,#06b6d4)}
+nav{display:grid;gap:8px}
+nav a{color:#cbd5e1;text-decoration:none;padding:11px 12px;border-radius:10px}
+nav a.active,nav a:hover{background:#16243a;color:white}
+main{padding:28px}
+.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}
+h1{margin:0;font-size:28px}
+.sub{color:#94a3b8;margin-top:6px}
+.logout{background:#fff;color:#111827;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.card{background:#0d1b2d;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px}
+.card h3{margin:0 0 8px;font-size:14px;color:#94a3b8}
+.big{font-size:28px;font-weight:800}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+th{color:#94a3b8;font-size:13px}
+.tag{display:inline-block;padding:6px 9px;border-radius:999px;background:#172554;color:#c7d2fe;font-size:12px}
+.list{display:grid;gap:10px}
+.item{padding:12px;border-radius:12px;background:#101f33}
+.small{color:#94a3b8;font-size:13px}
+@media(max-width:900px){.shell{grid-template-columns:1fr}aside{display:none}.cards{grid-template-columns:1fr}.grid{grid-template-columns:1fr}main{padding:18px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside>
+  <div class="brand"><div class="logo">ICT</div><span>Admin Panel</span></div>
+  <nav>
+    <a class="active" href="/admin/dashboard">Dashboard</a>
+    <a href="/">View Website</a>
+  </nav>
+</aside>
+<main>
+  <div class="top">
+    <div><h1>IT Cyber Technology Admin</h1><div class="sub">Secure dashboard for training.itcyber.in</div></div>
+    <form method="post" action="/api/admin/logout"><button class="logout">Logout</button></form>
+  </div>
+  <section class="cards">
+    <div class="card"><h3>Courses</h3><div class="big" id="courseCount">—</div></div>
+    <div class="card"><h3>Online Batches</h3><div class="big" id="batchCount">—</div></div>
+    <div class="card"><h3>Access</h3><div class="big">Protected</div><div class="small">8-hour secure session</div></div>
+  </section>
+  <section class="grid">
+    <div class="card">
+      <h2>Courses</h2>
+      <table><thead><tr><th>Course</th><th>Duration</th><th>Fee</th></tr></thead><tbody id="courses"></tbody></table>
+    </div>
+    <div class="card">
+      <h2>Online Batches</h2>
+      <div class="list" id="batches"></div>
+      <h2 style="margin-top:22px">Contact</h2>
+      <div class="item"><div id="phone"></div><div class="small" id="email"></div></div>
+    </div>
+  </section>
+</main>
+</div>
+<script>
+(async()=>{try{
+const r=await fetch('/api/admin/overview',{credentials:'same-origin'});
+if(!r.ok){location.href='/admin';return}
+const d=await r.json();
+courseCount.textContent=d.courses.length;
+batchCount.textContent=d.batches.length;
+courses.innerHTML=d.courses.map(c=>'<tr><td>'+c.name+'</td><td>'+c.duration+'</td><td>'+c.fee+'</td></tr>').join('');
+batches.innerHTML=d.batches.map(b=>'<div class="item"><span class="tag">'+b+'</span></div>').join('');
+phone.textContent=d.contact.phone;
+email.textContent=d.contact.email;
+}catch(e){location.href='/admin'}}
+})();
+</script>
+</body>
+</html>
