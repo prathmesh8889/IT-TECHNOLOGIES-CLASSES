@@ -9,7 +9,43 @@ if(menuBtn&&navMenu){
   window.addEventListener("resize",()=>{if(window.innerWidth>900)closeMenu()});
 }
 const year=document.getElementById("year");if(year)year.textContent=new Date().getFullYear();
-const form=document.getElementById("enquiryForm"),formMessage=document.getElementById("formMessage");if(form){form.addEventListener("submit",async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(form).entries());if(formMessage){formMessage.textContent="Saving your enquiry…";formMessage.className="form-message"}let saved=true;if(window.itcyberDb){const {error}=await window.itcyberDb.from("admissions").insert({name:d.name||"",phone:d.phone||"",email:d.email||"",course:d.course||"",mode:d.mode||"Online",message:d.message||"",source:"website",status:"new"});saved=!error;if(error)console.error("Admission save failed",error)}const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(d.name||"")}%0APhone: ${encodeURIComponent(d.phone||"")}%0AEmail: ${encodeURIComponent(d.email||"-")}%0ACourse: ${encodeURIComponent(d.course||"")}%0AMode: ${encodeURIComponent(d.mode||"")}%0AMessage: ${encodeURIComponent(d.message||"-")}`;window.open("https://wa.me/919763897697?text="+msg,"_blank");if(formMessage){formMessage.textContent=saved?"Enquiry saved. Opening WhatsApp…":"Opening WhatsApp…";formMessage.className="form-message ok"}if(saved)form.reset()})}
+const form=document.getElementById("enquiryForm"),formMessage=document.getElementById("formMessage");
+if(form){
+  form.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const submitBtn=form.querySelector('button[type="submit"]');
+    const originalText=submitBtn?.textContent||"Submit";
+    const d=Object.fromEntries(new FormData(form).entries());
+    if(formMessage){formMessage.textContent="Saving your enquiry…";formMessage.className="form-message"}
+    if(submitBtn){submitBtn.disabled=true;submitBtn.textContent="Saving…"}
+    const waWindow=window.open("about:blank","_blank");
+    try{
+      if(!window.itcyberDb)throw new Error("Database connection is unavailable.");
+      const {error}=await window.itcyberDb.from("admissions").insert({
+        name:String(d.name||"").trim(),
+        phone:String(d.phone||"").trim(),
+        email:String(d.email||"").trim(),
+        course:String(d.course||"").trim(),
+        mode:String(d.mode||"Online").trim(),
+        message:String(d.message||"").trim(),
+        source:"website",
+        status:"new"
+      });
+      if(error)throw error;
+      const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(d.name||"")}%0APhone: ${encodeURIComponent(d.phone||"")}%0AEmail: ${encodeURIComponent(d.email||"-")}%0ACourse: ${encodeURIComponent(d.course||"")}%0AMode: ${encodeURIComponent(d.mode||"")}%0AMessage: ${encodeURIComponent(d.message||"-")}`;
+      if(formMessage){formMessage.textContent="Enquiry saved successfully. Opening WhatsApp…";formMessage.className="form-message ok"}
+      form.reset();
+      if(waWindow)waWindow.location.href="https://wa.me/919763897697?text="+msg;
+      else window.location.href="https://wa.me/919763897697?text="+msg;
+    }catch(err){
+      console.error("Admission save failed",err);
+      if(waWindow)waWindow.close();
+      if(formMessage){formMessage.textContent="Enquiry could not be saved. Please try again.";formMessage.className="form-message err"}
+    }finally{
+      if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=originalText}
+    }
+  });
+}
 const revealEls=document.querySelectorAll(".reveal");
 if(revealEls.length){
   if("IntersectionObserver" in window){
