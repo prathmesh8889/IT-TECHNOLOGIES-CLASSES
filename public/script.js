@@ -16,23 +16,27 @@ if(form){
     const submitBtn=form.querySelector('button[type="submit"]');
     const originalText=submitBtn?.textContent||"Submit";
     const d=Object.fromEntries(new FormData(form).entries());
+    const payload={
+      name:String(d.name||"").trim(),
+      phone:String(d.phone||"").trim(),
+      email:String(d.email||"").trim(),
+      course:String(d.course||"").trim(),
+      mode:String(d.mode||"Online").trim(),
+      message:String(d.message||"").trim()
+    };
     if(formMessage){formMessage.textContent="Saving your enquiry…";formMessage.className="form-message"}
     if(submitBtn){submitBtn.disabled=true;submitBtn.textContent="Saving…"}
     const waWindow=window.open("about:blank","_blank");
     try{
-      if(!window.itcyberDb)throw new Error("Database connection is unavailable.");
-      const {error}=await window.itcyberDb.from("admissions").insert({
-        name:String(d.name||"").trim(),
-        phone:String(d.phone||"").trim(),
-        email:String(d.email||"").trim(),
-        course:String(d.course||"").trim(),
-        mode:String(d.mode||"Online").trim(),
-        message:String(d.message||"").trim(),
-        source:"website",
-        status:"new"
+      const response=await fetch("https://bvygcyllsdkqxjvdlrno.supabase.co/functions/v1/submit-admission",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
       });
-      if(error)throw error;
-      const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(d.name||"")}%0APhone: ${encodeURIComponent(d.phone||"")}%0AEmail: ${encodeURIComponent(d.email||"-")}%0ACourse: ${encodeURIComponent(d.course||"")}%0AMode: ${encodeURIComponent(d.mode||"")}%0AMessage: ${encodeURIComponent(d.message||"-")}`;
+      let result={};
+      try{result=await response.json()}catch{}
+      if(!response.ok||!result.ok)throw new Error(result.error||"Could not save enquiry");
+      const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(payload.name)}%0APhone: ${encodeURIComponent(payload.phone)}%0AEmail: ${encodeURIComponent(payload.email||"-")}%0ACourse: ${encodeURIComponent(payload.course)}%0AMode: ${encodeURIComponent(payload.mode)}%0AMessage: ${encodeURIComponent(payload.message||"-")}`;
       if(formMessage){formMessage.textContent="Enquiry saved successfully. Opening WhatsApp…";formMessage.className="form-message ok"}
       form.reset();
       if(waWindow)waWindow.location.href="https://wa.me/919763897697?text="+msg;
@@ -40,7 +44,7 @@ if(form){
     }catch(err){
       console.error("Admission save failed",err);
       if(waWindow)waWindow.close();
-      if(formMessage){formMessage.textContent="Enquiry could not be saved. Please try again.";formMessage.className="form-message err"}
+      if(formMessage){formMessage.textContent="Could not save enquiry. Please try again.";formMessage.className="form-message err"}
     }finally{
       if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=originalText}
     }
