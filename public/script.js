@@ -9,7 +9,7 @@ if(menuBtn&&navMenu){
   window.addEventListener("resize",()=>{if(window.innerWidth>900)closeMenu()});
 }
 const year=document.getElementById("year");if(year)year.textContent=new Date().getFullYear();
-const form=document.getElementById("enquiryForm"),formMessage=document.getElementById("formMessage");if(form){form.addEventListener("submit",e=>{e.preventDefault();const d=Object.fromEntries(new FormData(form).entries());const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(d.name||"")}%0APhone: ${encodeURIComponent(d.phone||"")}%0AEmail: ${encodeURIComponent(d.email||"-")}%0ACourse: ${encodeURIComponent(d.course||"")}%0AMode: ${encodeURIComponent(d.mode||"")}%0AMessage: ${encodeURIComponent(d.message||"-")}`;window.open("https://wa.me/919763897697?text="+msg,"_blank");if(formMessage){formMessage.textContent="Opening WhatsApp…";formMessage.className="form-message ok"}})}
+const form=document.getElementById("enquiryForm"),formMessage=document.getElementById("formMessage");if(form){form.addEventListener("submit",async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(form).entries());if(formMessage){formMessage.textContent="Saving your enquiry…";formMessage.className="form-message"}let saved=true;if(window.itcyberDb){const {error}=await window.itcyberDb.from("admissions").insert({name:d.name||"",phone:d.phone||"",email:d.email||"",course:d.course||"",mode:d.mode||"Online",message:d.message||"",source:"website",status:"new"});saved=!error;if(error)console.error("Admission save failed",error)}const msg=`Hello IT Cyber Technology,%0A%0AI want to enquire about admission.%0A%0AName: ${encodeURIComponent(d.name||"")}%0APhone: ${encodeURIComponent(d.phone||"")}%0AEmail: ${encodeURIComponent(d.email||"-")}%0ACourse: ${encodeURIComponent(d.course||"")}%0AMode: ${encodeURIComponent(d.mode||"")}%0AMessage: ${encodeURIComponent(d.message||"-")}`;window.open("https://wa.me/919763897697?text="+msg,"_blank");if(formMessage){formMessage.textContent=saved?"Enquiry saved. Opening WhatsApp…":"Opening WhatsApp…";formMessage.className="form-message ok"}if(saved)form.reset()})}
 const revealEls=document.querySelectorAll(".reveal");
 if(revealEls.length){
   if("IntersectionObserver" in window){
@@ -91,16 +91,16 @@ function safeText(v){return String(v??"")}
 })();
 
 
+
 /* Course catalog filtering */
-(()=>{
+function bindCourseFilters(){
   const buttons=[...document.querySelectorAll(".category-link")];
-  const cards=[...document.querySelectorAll(".course-pro-card")];
-  if(!buttons.length||!cards.length)return;
-  buttons.forEach(btn=>btn.addEventListener("click",()=>{
+  if(!buttons.length)return;
+  buttons.forEach(btn=>{btn.onclick=()=>{
     buttons.forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     const filter=btn.dataset.filter||"all";
-    cards.forEach(card=>{
+    document.querySelectorAll(".course-pro-card").forEach(card=>{
       const cats=(card.dataset.category||"").split(/\s+/);
       const show=filter==="all"||cats.includes(filter);
       card.classList.toggle("is-hidden",!show);
@@ -108,5 +108,7 @@ function safeText(v){return String(v??"")}
         card.animate([{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"translateY(0)"}],{duration:320,easing:"ease-out"});
       }
     });
-  }));
-})();
+  }});
+}
+bindCourseFilters();
+window.addEventListener("courses:rendered",bindCourseFilters);
