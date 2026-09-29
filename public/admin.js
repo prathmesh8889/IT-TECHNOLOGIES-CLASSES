@@ -54,6 +54,17 @@ function showTab(tab,title){
 }
 async function loadAll(){
   await Promise.all([loadStats(),loadCourses(),loadBatches(),loadInternship(),loadAnnouncements(),loadMedia(),loadAdmissions()]);
+  bindAdmissionsRealtime();
+}
+let admissionsChannel;
+function bindAdmissionsRealtime(){
+  if(admissionsChannel)return;
+  admissionsChannel=db.channel("admin-admissions-live")
+    .on("postgres_changes",{event:"*",schema:"public",table:"admissions"},async()=>{
+      await loadAdmissions();
+      await loadStats();
+    })
+    .subscribe();
 }
 async function loadStats(){
   const [c,b,a,n]=await Promise.all([
