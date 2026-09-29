@@ -89,3 +89,24 @@ function safeText(v){return String(v??"")}
     counters.forEach(el=>io.observe(el));
   }
 })();
+
+
+/* Course catalog filtering */
+(()=>{
+  const buttons=[...document.querySelectorAll(".category-link")];
+  const cards=[...document.querySelectorAll(".course-pro-card")];
+  if(!buttons.length||!cards.length)return;
+  buttons.forEach(btn=>btn.addEventListener("click",()=>{
+    buttons.forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const filter=btn.dataset.filter||"all";
+    cards.forEach(card=>{
+      const cats=(card.dataset.category||"").split(/\s+/);
+      const show=filter==="all"||cats.includes(filter);
+      card.classList.toggle("is-hidden",!show);
+      if(show&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+        card.animate([{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"translateY(0)"}],{duration:320,easing:"ease-out"});
+      }
+    });
+  }));
+})();
